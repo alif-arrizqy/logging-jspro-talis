@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Capacity {
+  id         Int        @id @default(autoincrement())
+  nojsId     Int
+  diskFree   String?    @db.VarChar(8)
+  diskTotal  String?    @db.VarChar(8)
+  diskUsed   String?    @db.VarChar(8)
+  freeRam    String?    @db.VarChar(8)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  nojsUser   NojsUser   @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+}
+
+model DockCell {
+  id           BigInt         @id @default(autoincrement())
+  dockMax      Int?
+  valueMax     Float?
+  dockMin      Int?
+  valueMin     Float?
+  dock1        Int?
+  dock2        Int?
+  dock3        Int?
+  dock4        Int?
+  dock5        Int?
+  dock6        Int?
+  dock7        Int?
+  dock8        Int?
+  dock9        Int?
+  dock10       Int?
+  dock11       Int?
+  dock12       Int?
+  dock13       Int?
+  dock14       Int?
+  dock15       Int?
+  dock16       Int?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  nojsLoggers  NojsLogger[]
+}
+
+model Energy {
+  id           BigInt         @id @default(autoincrement())
+  edl1         Float?
+  edl2         Float?
+  eh1          Float?
+  eh2          Float?
+  eh3          Float?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  edl3         Float?
+  nojsLoggers  NojsLogger[]
+}
+
+model NojsLogger {
+  id            BigInt      @id @default(autoincrement())
+  ts            String?     @db.VarChar(255)
+  nojsId        Int
+  battVolt      Float?
+  cpuTemp       Float?
+  dockActive    String?     @db.VarChar(255)
+  load1         Float?
+  load2         Float?
+  load3         Float?
+  dockCellId    BigInt?
+  energyId      BigInt?
+  pvId          BigInt?
+  bspwatt       Int?
+  mcbVoltage    Float?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  dockCell      DockCell?   @relation(fields: [dockCellId], references: [id], onDelete: Cascade)
+  energy        Energy?     @relation(fields: [energyId], references: [id], onDelete: Cascade)
+  nojsUser      NojsUser    @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+  pv            Pv?         @relation(fields: [pvId], references: [id], onDelete: Cascade)
+
+  @@index([nojsId], map: "nojsid_hash", type: Hash)
+  @@index([ts], map: "ts_loggers_idx")
+}
+
+model NojsUser {
+  id              Int               @id @default(autoincrement())
+  nojs            String            @unique(map: "UNIQUE_NOJS") @db.VarChar(255)
+  site            String            @db.VarChar(255)
+  ip              String            @db.VarChar(255)
+  lc              String?           @db.VarChar(255)
+  gs              String?           @db.VarChar(255)
+  mitra           String?           @db.VarChar(255)
+  kota            String?           @db.VarChar(255)
+  provinsi        String?           @db.VarChar(255)
+  latitude        String?           @db.VarChar(255)
+  longitude       String?           @db.VarChar(255)
+  ehubVersion     String?           @db.VarChar(255)
+  panel2Type      String?           @db.VarChar(255)
+  mpptType        String?           @db.VarChar(255)
+  talisVersion    Boolean?          @db.Boolean
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  capacities      Capacity[]
+  nojsLoggers     NojsLogger[]
+}
+
+model Pv {
+  id           BigInt         @id @default(autoincrement())
+  pv1Curr      Float?
+  pv1Volt      Float?
+  pv2Curr      Float?
+  pv2Volt      Float?
+  pv3Curr      Float?
+  pv3Volt      Float?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  nojsLoggers  NojsLogger[]
+}
+
+model BmsLogger {
+  id                      BigInt      @id @default(autoincrement())
+  ts                      String?     @db.VarChar(255)
+  threadId                Int?
+  nojsId                  Int
+  errorMessage            String?     @db.VarChar(255)
+  pcbCode                 String?     @db.VarChar(255)
+  sn1Code                 String?     @db.VarChar(255)
+  packVoltage             Int?        
+  packCurrent             Int?        
+  remainingCapacity       Int?        
+  averageCellTemperature  Int?        
+  environmentTemperature  Int?        
+  warningFlag             String?     @db.VarChar(255)
+  protectionFlag          String?     @db.VarChar(255)
+  faultStatus             String?     @db.VarChar(255)
+  soc                     Int?        
+  soh                     Int?        
+  fullChargedCapacity     Int?        
+  cycleCount              Int?        
+  cellVoltageId           BigInt?     @db.BigInt
+  maxCellVoltage          Int?        
+  minCellVoltage          Int?        
+  cellDifference          Int?        
+  maxCellTemperature      Int?        
+  minCellTemperature      Int?        
+  fetTemperature          Int?        
+  cellTemperature1         Int?       
+  cellTemperature2         Int?       
+  cellTemperature3         Int?       
+  ambientTemperature      Int?        
+  remainingChargeTime     Int?        
+  remainingDischargeTime  Int?        
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  bmsCellVoltage          BmsCellVoltage? @relation(fields: [cellVoltageId], references: [id], onDelete: Cascade)
+}
+
+model BmsCellVoltage {
+  id           BigInt      @id @default(autoincrement())
+  cell1        Int?
+  cell2        Int?
+  cell3        Int?
+  cell4        Int?
+  cell5        Int?
+  cell6        Int?
+  cell7        Int?
+  cell8        Int?
+  cell9        Int?
+  cell10       Int?
+  cell11       Int?
+  cell12       Int?
+  cell13       Int?
+  cell14       Int?
+  cell15       Int?
+  cell16       Int?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  bmsLoggers   BmsLogger[]
+}

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "NojsUser" ALTER COLUMN "gs" SET DATA TYPE VARCHAR(255);
