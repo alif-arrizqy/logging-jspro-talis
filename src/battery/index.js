@@ -33,7 +33,7 @@ const dataToFormatDb = async (datas) => {
       pv3Curr: el.pv3_curr,
     };
     let dock = {};
-    el.dvc.forEach((e, i) => {
+    el.cellv.forEach((e, i) => {
       dock[`dock${i + 1}`] = e;
     });
     const dockCell = {
