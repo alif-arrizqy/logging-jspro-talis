@@ -7,10 +7,10 @@ import {
 import { fetchLoggerTalis, deleteLoggerTalis } from "./api.js";
 
 const dataToFormatDb = async (datas) => {
-  return await datas.map((el) => {
-    console.log(el);
-    const talisSchemas = {
+  return datas.map((el) => {
+    const talis = {
       ts: el.ts,
+      threadId: el.thread_id,
       errorMessages: el.error_messages,
       pcbCode: el.pcb_code,
       sn1Code: el.sn1_code,
@@ -21,7 +21,7 @@ const dataToFormatDb = async (datas) => {
       environmentTemperature: el.environment_temperature,
       warningFlag: el.warning_flag,
       protectionFlag: el.protection_flag,
-      faultStatus: el.fault_status,
+      faultStatus: el.fault_status_flag,
       soc: el.soc,
       soh: el.soh,
       fullChargedCapacity: el.full_charged_capacity,
@@ -32,177 +32,116 @@ const dataToFormatDb = async (datas) => {
       maxCellTemperature: el.max_cell_temperature,
       minCellTemperature: el.min_cell_temperature,
       fetTemperature: el.fet_temperature,
-      cellCemperature1: el.cell_cemperature[0],
-      cellCemperature2: el.cell_cemperature[1],
-      cellCemperature3: el.cell_cemperature[2],
+      cellTemperature1: el.cell_temperature[0],
+      cellTemperature2: el.cell_temperature[1],
+      cellTemperature3: el.cell_temperature[2],
       ambientTemperature: el.ambient_temperature,
       remainingChargeTime: el.remaining_charge_time,
       remainingDischargeTime: el.remaining_discharge_time,
     };
-    console.log(talisSchemas);
 
-    let talisCellSchemas = {};
-    el.cell_voltage.map((e, i) => {
-      return (talisCellSchemas[`cell${i + 1}`] = e);
-    });
-    return { talisSchemas, talisCellSchemas };
+    const talisCellPack = el.cell_voltage.reduce((acc, e, i) => {
+      acc[`cell${i + 1}`] = e;
+      return acc;
+    }, {});
+
+    return { talis, talisCellPack };
   });
 };
 
-
-// validation data
 const validateTalisLoggers = async (datas) => {
   try {
-    const parseToFormatDb = await dataToFormatDb(datas);
-    // validate logger
-    const resultLogger = parseToFormatDb.map((el) => {
-      const validLogger = taliSchemas().safeParse(el.talisSchemas);
-      const validCell = talisCellSchemas().safeParse(el.talisCellSchemas);
+    const parsedData = await dataToFormatDb(datas);
+    return parsedData.map((el) => {
+      const validLogger = taliSchemas().safeParse(el.talis);
+      const validCell = talisCellSchemas().safeParse(el.talisCellPack);
       return {
-        status: "success",
+        status: validLogger.success && validCell.success ? "success" : "failed",
         talisLogger: validLogger.data,
         talisCell: validCell.data,
+        errors: {
+          loggerErrors: validLogger.error,
+          cellErrors: validCell.error,
+        },
       };
     });
-    return resultLogger;
   } catch (error) {
-    return {
-      status: "error"
-    }
+    console.error("Error validating talis loggers:", error);
+    return { status: "error" };
   }
 };
 
-// Add talisLoggers
 const createTalisLoggers = async (nojsId) => {
-  // Fetch logger data
-  // const loggerData = await fetchLoggerTalis();
-  const loggerData = [
-    {
-      ambient_temperature: 326,
-      average_cell_temperature: 309,
-      cell_difference: 2,
-      cell_temperature: [309, 310, 310],
-      cell_voltage: [
-        3331, 3330, 3330, 3330, 3330, 3331, 3331, 3331, 3329, 3330, 3330, 3330,
-        3331, 3330, 3329, 3330,
-      ],
-      cycle_count: 4,
-      environment_temperature: 326,
-      error_messages: [
-        "Pack voltage 5328 exceeds limit 5325",
-        "Max cell voltage 3331 exceeds limit 425 at indices [0, 5, 6, 7, 12]",
-        "Min cell voltage 3329 exceeds limit 375 at indices [8, 14]",
-        "Cell difference 2 below limit 5",
-        "Max cell temperature 310 exceeds limit 240 at indices [1, 2]",
-        "Min cell temperature 309 exceeds limit 230 at indices [0]",
-        "FET temperature 300 exceeds limit 250",
-      ],
-      fault_status_flag: [
-        "charge Mosfet ON",
-        "discharge Mosfet ON",
-        "charge limit current function is ON",
-      ],
-      fet_temperature: 300,
-      full_charged_capacity: 100,
-      max_cell_temperature: 310,
-      max_cell_voltage: 3331,
-      min_cell_temperature: 309,
-      min_cell_voltage: 3329,
-      pack_current: 0,
-      pack_voltage: 5328,
-      pcb_code: "TBI23122400277",
-      protection_flag: ["no alarm detected"],
-      remaining_capacity: 100,
-      remaining_charge_time: 65535,
-      remaining_discharge_time: 65535,
-      sn1_code: "",
-      soc: 10000,
-      soh: 10000,
-      thread_id: 1,
-      ts: "20240909T155444",
-      warning_flag: ["no alarm detected"],
-    },
-    {
-      ambient_temperature: 326,
-      average_cell_temperature: 309,
-      cell_difference: 2,
-      cell_temperature: [309, 310, 310],
-      cell_voltage: [
-        3331, 3330, 3330, 3330, 3330, 3331, 3331, 3331, 3329, 3330, 3330, 3330,
-        3331, 3330, 3329, 3330,
-      ],
-      cycle_count: 4,
-      environment_temperature: 326,
-      error_messages: [
-        "Pack voltage 5328 exceeds limit 5325",
-        "Max cell voltage 3331 exceeds limit 425 at indices [0, 5, 6, 7, 12]",
-        "Min cell voltage 3329 exceeds limit 375 at indices [8, 14]",
-        "Cell difference 2 below limit 5",
-        "Max cell temperature 310 exceeds limit 240 at indices [1, 2]",
-        "Min cell temperature 309 exceeds limit 230 at indices [0]",
-        "FET temperature 300 exceeds limit 250",
-      ],
-      fault_status_flag: [
-        "charge Mosfet ON",
-        "discharge Mosfet ON",
-        "charge limit current function is ON",
-      ],
-      fet_temperature: 300,
-      full_charged_capacity: 100,
-      max_cell_temperature: 310,
-      max_cell_voltage: 3331,
-      min_cell_temperature: 309,
-      min_cell_voltage: 3329,
-      pack_current: 0,
-      pack_voltage: 5328,
-      pcb_code: "TBI23122400277",
-      protection_flag: ["no alarm detected"],
-      remaining_capacity: 100,
-      remaining_charge_time: 65535,
-      remaining_discharge_time: 65535,
-      sn1_code: "",
-      soc: 10000,
-      soh: 10000,
-      thread_id: 1,
-      ts: "20240909T155444",
-      warning_flag: ["no alarm detected"],
+  try {
+    const loggerData = await fetchLoggerTalis();
+    if (loggerData.code !== 200) {
+      return ResponseHelper.errorMessage("Failed to fetch logger data", 500);
     }
-  ];
 
-  if (loggerData === null) {
-    return ResponseHelper.errorMessage("Failed to fetch logger data", 500);
+    if (loggerData.data.length === 0) {
+      console.log("Talis logger data is empty");
+      return;
+    }
+
+    const validatedData = await validateTalisLoggers(loggerData.data);
+    if (!validatedData.every((data) => data.status === "success")) {
+      console.log("Some data failed to validate");
+      const failedData = validatedData.filter(
+        (data) => data.status === "failed"
+      );
+      console.log(failedData);
+      return;
+    }
+
+    console.log("All data validated successfully");
+
+    for (const element of validatedData) {
+      try {
+        const bmsCellId = await prisma.bmsCellVoltage.create({
+          data: element.talisCell,
+          select: { id: true },
+        });
+
+        const talisLogger = await prisma.bmsLogger.create({
+          data: {
+            ...element.talisLogger,
+            nojsId,
+            cellVoltageId: bmsCellId.id,
+          },
+        });
+
+        if (!talisLogger) {
+          throw new Error(
+            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Failed to create talis logger data`
+          );
+        }
+
+        console.log(
+          `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Talis logger data created successfully`
+        );
+
+        const deletedLogger = await deleteLoggerTalis(element.talisLogger.ts);
+        if (deletedLogger) {
+          console.log(
+            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Logger data deleted successfully`
+          );
+        } else {
+          console.log(
+            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Failed to delete logger data`
+          );
+        }
+      } catch (error) {
+        console.error("Error inserting talis logger data:", error);
+        return ResponseHelper.errorMessage(
+          "Failed to insert talis logger data",
+          500
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error in createTalisLoggers:", error);
+    return ResponseHelper.errorMessage("Failed to create talis loggers", 500);
   }
-
-  if (loggerData.length > 0) {
-    // Validate logger data
-    const validateLogger = await validateTalisLoggers(loggerData);
-  
-    // if (validateLogger.every((data) => data.status === "success")) {
-    //   console.log("All data validated successfully");
-  
-    //   for (const element of validateLogger) {
-    //     try {
-    //       // Insert BmsCellVoltage
-    //       // const bmsCellId = await prisma.bmsCellVoltage.create({
-    //       //   data: {
-    //       //     cell1: element.validCell.data.cell1,
-    //       //   },
-    //       // });
-    //       console.log(element.talisLogger.data);
-    //     } catch (error) {
-    //       console.error("Error inserting bmsCellVoltage:", error);
-    //       // return ResponseHelper.errorMessage("Failed to insert bmsCellVoltage", 500);
-    //     }
-    //   }
-    // } else {
-    //   console.log("Some data failed to validate");
-    //   const failedData = validateLogger.filter((data) => data.status === "failed");
-    //   console.log(failedData);
-    // }
-  } else {
-    console.log("Talis logger data is empty");
-  }
-
 };
 
-export { createTalisLoggers }
+export { createTalisLoggers };
