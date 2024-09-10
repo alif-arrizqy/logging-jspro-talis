@@ -4,7 +4,7 @@ import { createTalisLoggers } from "./src/talis/index.js";
 import { createNojsLoggers } from "./src/battery/index.js";
 
 // Schedule tasks to be run on the server every 6 minutes
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule("*/6 * * * *", async () => {
   console.log("Running every 6 minutes");
   const noJsId = 1;
 
