@@ -1,7 +1,7 @@
 import prisma from "../app.js";
-import * as ResponseHelper from "../helpers/response.js";
-import * as ValidationHelper from "../helpers/validation/noJsLoggers.js";
-import { fetchLogger, deleteLogger } from "./api.js";
+import * as ResponseHelper from "../../helpers/response.js";
+import * as ValidationHelper from "../../helpers/validation/pmsValidation.js";
+import { fetchLogger, deleteLogger } from "../../helpers/fetchAPI.js";
 
 const dataToFormatDb = async (datas) => {
   return datas.map((el) => {

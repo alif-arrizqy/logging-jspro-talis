@@ -3,7 +3,7 @@ import * as ResponseHelper from "../helpers/response.js";
 import {
   taliSchemas,
   talisCellSchemas,
-} from "../helpers/validation/talisSchemas.js";
+} from "../helpers/validation/talisValidation.js";
 import { fetchLoggerTalis, deleteLoggerTalis } from "./api.js";
 
 const dataToFormatDb = async (datas) => {
