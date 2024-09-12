@@ -7,91 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model DockCell {
-  id          BigInt       @id @default(autoincrement())
-  dockMax     Int?
-  valueMax    Float?
-  dockMin     Int?
-  valueMin    Float?
-  dock1       Int?
-  dock2       Int?
-  dock3       Int?
-  dock4       Int?
-  dock5       Int?
-  dock6       Int?
-  dock7       Int?
-  dock8       Int?
-  dock9       Int?
-  dock10      Int?
-  dock11      Int?
-  dock12      Int?
-  dock13      Int?
-  dock14      Int?
-  dock15      Int?
-  dock16      Int?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  nojsLoggers NojsLogger[]
-}
-
 model Energy {
   id          BigInt       @id @default(autoincrement())
   edl1        Float?
   edl2        Float?
+  edl3        Float?
   eh1         Float?
   eh2         Float?
   eh3         Float?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  edl3        Float?
-  nojsLoggers NojsLogger[]
-}
-
-model NojsLogger {
-  id         BigInt    @id @default(autoincrement())
-  ts         String?   @db.VarChar(255)
-  nojsId     Int
-  battVolt   Float?
-  cpuTemp    Float?
-  dockActive String?   @db.VarChar(255)
-  load1      Float?
-  load2      Float?
-  load3      Float?
-  dockCellId BigInt?
-  energyId   BigInt?
-  pvId       BigInt?
-  bspwatt    Int?
-  mcbVoltage Float?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  dockCell   DockCell? @relation(fields: [dockCellId], references: [id], onDelete: Cascade)
-  energy     Energy?   @relation(fields: [energyId], references: [id], onDelete: Cascade)
-  nojsUser   NojsUser  @relation(fields: [nojsId], references: [id], onDelete: Cascade)
-  pv         Pv?       @relation(fields: [pvId], references: [id], onDelete: Cascade)
-
-  @@index([nojsId], map: "nojsid_hash", type: Hash)
-  @@index([ts], map: "ts_loggers_idx")
-}
-
-model NojsUser {
-  id           Int          @id @default(autoincrement())
-  nojs         String       @unique(map: "UNIQUE_NOJS") @db.VarChar(255)
-  site         String       @db.VarChar(255)
-  ip           String       @db.VarChar(255)
-  lc           String?      @db.VarChar(255)
-  gs           String?      @db.VarChar(255)
-  mitra        String?      @db.VarChar(255)
-  kota         String?      @db.VarChar(255)
-  provinsi     String?      @db.VarChar(255)
-  latitude     String?      @db.VarChar(255)
-  longitude    String?      @db.VarChar(255)
-  ehubVersion  String?      @db.VarChar(255)
-  panel2Type   String?      @db.VarChar(255)
-  mpptType     String?      @db.VarChar(255)
-  talisVersion Boolean?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  nojsLoggers  NojsLogger[]
+  pmsLoggers  PmsLoggers[]
 }
 
 model Pv {
@@ -104,12 +30,133 @@ model Pv {
   pv3Volt     Float?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  nojsLoggers NojsLogger[]
+  pmsLoggers  PmsLoggers[]
 }
 
-model BmsLogger {
+model TvdLoggers {
+  id         BigInt    @id @default(autoincrement())
+  nojsId     Int
+  bspPower   Int?
+  lvdVsat    Int?
+  mcbVoltage Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+}
+
+model PmsCell { 
+  id          BigInt       @id @default(autoincrement())
+  voltage     Int?
+  current     Int?
+  cellMax     Int?
+  valueMax    Float?
+  cellMin     Int?
+  valueMin    Float?
+  cmosState  Int?
+  dmosState  Int?
+  tempCmos   Int?
+  tempDmos   Int?
+  tempTop    Int?
+  tempMid    Int?
+  tempBot    Int?
+  cell1       Int?
+  cell2       Int?
+  cell3       Int?
+  cell4       Int?
+  cell5       Int?
+  cell6       Int?
+  cell7       Int?
+  cell8       Int?
+  cell9       Int?
+  cell10      Int?
+  cell11      Int?
+  cell12      Int?
+  cell13      Int?
+  cell14      Int?
+  cell15      Int?
+  cell16      Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  pmsLoggers  PmsLoggers[]
+}
+
+model PmsLoggers {
+  id         BigInt    @id @default(autoincrement())
+  ts         String?   @db.VarChar(255)
+  nojsId     Int
+  battVolt   Float?
+  cpuTemp    Float?
+  dockActive String?   @db.VarChar(255)
+  load1      Float?
+  load2      Float?
+  load3      Float?
+  pmsId      Int?
+  pmsCellId  BigInt?
+  energyId   BigInt?
+  pvId       BigInt?
+  tvdId      BigInt?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  pmsCell    PmsCell?  @relation(fields: [pmsCellId] , references: [id], onDelete: Cascade)
+  energy     Energy?   @relation(fields: [energyId], references: [id], onDelete: Cascade)
+  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+  pv         Pv?       @relation(fields: [pvId], references: [id], onDelete: Cascade)
+
+  @@index([nojsId], map: "nojsid_hash", type: Hash)
+  @@index([ts], map: "ts_loggers_idx")
+}
+
+model SiteInformation {
+  id           Int          @id @default(autoincrement())
+  nojs         String       @unique(map: "UNIQUE_NOJS_NOJS") @db.VarChar(255)
+  siteId       String       @unique(map: "UNIQUE_NOJS_SITEID") @db.VarChar(255)
+  terminalId   String       @db.VarChar(255)
+  siteName     String       @db.VarChar(255)
+  ip           String       @db.VarChar(255)
+  ipMiniPc     String?      @db.VarChar(255)
+  webapp       String?      @db.VarChar(255)
+  ehubVersion  String?      @db.VarChar(255)
+  panel2Type   String?      @db.VarChar(255)
+  mpptType     String?      @db.VarChar(255)
+  talisVersion Boolean?
+  tvdSite      Boolean?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  pmsLoggers   PmsLoggers[]
+  tvdLoggers   TvdLoggers[]
+  siteInfoDetails SiteInfoDetail[]
+}
+
+model SiteInfoDetail {
+  id                Int          @id @default(autoincrement())
+  nojsId            String       @unique(map: "UNIQUE_NOJS_NOJSID") @db.VarChar(255)
+  ipGatewayLC       String?      @db.VarChar(255)
+  ipGatewayGS       String?      @db.VarChar(255)
+  subnet            String?      @db.VarChar(255)
+  cellularOperator  String?      @db.VarChar(255)
+  lc                String?      @db.VarChar(255)
+  gs                String?      @db.VarChar(255)
+  projectPhase      String?      @db.VarChar(255)
+  buildYear         String?      @db.VarChar(255)
+  onairDate         String?      @db.VarChar(255)
+  topoSustainDate   String?      @db.VarChar(255)
+  gsSustainDate     String?      @db.VarChar(255)
+  contactPerson     Json
+  address           String?      @db.VarChar(255)
+  subDistrict       String?      @db.VarChar(255)
+  district          String?      @db.VarChar(255)
+  province          String?      @db.VarChar(255)
+  latitude          Int?         
+  longitude         Int?         
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [nojs], onDelete: Cascade)
+}
+
+model BmsLoggers {
   id                     BigInt          @id @default(autoincrement())
   ts                     String?         @db.VarChar(255)
+  slaveId                Int?
   nojsId                 Int
   pcbCode                String?         @db.VarChar(255)
   sn1Code                String?         @db.VarChar(255)
@@ -137,7 +184,6 @@ model BmsLogger {
   cellTemperature1       Int?
   cellTemperature2       Int?
   cellTemperature3       Int?
-  threadId               Int?
   warningFlag            String[]        @db.VarChar
   protectionFlag         String[]        @db.VarChar
   faultStatus            String[]        @db.VarChar
@@ -165,5 +211,5 @@ model BmsCellVoltage {
   cell16     Int?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  bmsLoggers BmsLogger[]
+  bmsLoggers BmsLoggers[]
 }
