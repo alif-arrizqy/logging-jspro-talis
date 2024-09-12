@@ -52,13 +52,13 @@ model PmsCell {
   valueMax    Float?
   cellMin     Int?
   valueMin    Float?
-  cmosState  Int?
-  dmosState  Int?
-  tempCmos   Int?
-  tempDmos   Int?
-  tempTop    Int?
-  tempMid    Int?
-  tempBot    Int?
+  cmosState   Int?
+  dmosState   Int?
+  tempCmos    Int?
+  tempDmos    Int?
+  tempTop     Int?
+  tempMid     Int?
+  tempBot     Int?
   cell1       Int?
   cell2       Int?
   cell3       Int?
@@ -146,8 +146,8 @@ model SiteInfoDetail {
   subDistrict       String?      @db.VarChar(255)
   district          String?      @db.VarChar(255)
   province          String?      @db.VarChar(255)
-  latitude          Int?         
-  longitude         Int?         
+  latitude          Float?       
+  longitude         Float?       
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   siteInformation   SiteInformation  @relation(fields: [nojsId], references: [nojs], onDelete: Cascade)
