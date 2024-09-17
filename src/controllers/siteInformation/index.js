@@ -206,7 +206,7 @@ const fetchSiteInformation = async (nojsId) => {
   }
 };
 
-const updateSiteInformasi = async (nojsId, data) => {
+const updateSiteInformation = async (nojsId, data) => {
   try {
     const validData = await validateSchema(data);
     if (validData.status !== "success") {
@@ -268,6 +268,6 @@ const deleteSiteInformation = async (nojsId) => {
 export {
   createSiteInformation,
   fetchSiteInformation,
-  updateSiteInformasi,
+  updateSiteInformation,
   deleteSiteInformation,
 };
