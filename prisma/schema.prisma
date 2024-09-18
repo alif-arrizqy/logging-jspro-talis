@@ -35,25 +35,24 @@ model Pv {
 
 model TvdLoggers {
   id         BigInt    @id @default(autoincrement())
-  nojsId     Int
+  nojsSite   String
   bspPower   Int?
   lvdVsat    Int?
   mcbVoltage Int?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+  siteInformation   SiteInformation  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
 }
 
 model PmsCell { 
   id          BigInt       @id @default(autoincrement())
+  ts          String       @db.VarChar(255)
+  nojsSite    String
+  dock        String?
   voltage     Int?
   current     Int?
-  cellMax     Int?
-  valueMax    Float?
-  cellMin     Int?
-  valueMin    Float?
-  cmosState   Int?
-  dmosState   Int?
+  cmosState   String?
+  dmosState   String?
   tempCmos    Int?
   tempDmos    Int?
   tempTop     Int?
@@ -73,36 +72,34 @@ model PmsCell {
   cell12      Int?
   cell13      Int?
   cell14      Int?
-  cell15      Int?
-  cell16      Int?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  pmsLoggers  PmsLoggers[]
+  siteInformation   SiteInformation  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
 }
 
 model PmsLoggers {
   id         BigInt    @id @default(autoincrement())
   ts         String?   @db.VarChar(255)
-  nojsId     Int
-  battVolt   Float?
+  nojsSite   String
+  battVolt   Int?
   cpuTemp    Float?
   dockActive String?   @db.VarChar(255)
+  cellMax    Int?
+  valueMax   Int?
+  cellMin    Int?
+  valueMin   Int?
   load1      Float?
   load2      Float?
   load3      Float?
-  pmsId      Int?
-  pmsCellId  BigInt?
   energyId   BigInt?
   pvId       BigInt?
-  tvdId      BigInt?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  pmsCell    PmsCell?  @relation(fields: [pmsCellId] , references: [id], onDelete: Cascade)
   energy     Energy?   @relation(fields: [energyId], references: [id], onDelete: Cascade)
-  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [id], onDelete: Cascade)
+  siteInformation   SiteInformation?  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
   pv         Pv?       @relation(fields: [pvId], references: [id], onDelete: Cascade)
 
-  @@index([nojsId], map: "nojsid_hash", type: Hash)
+  @@index([nojsSite], map: "nojsid_hash", type: Hash)
   @@index([ts], map: "ts_loggers_idx")
 }
 
@@ -125,11 +122,13 @@ model SiteInformation {
   pmsLoggers   PmsLoggers[]
   tvdLoggers   TvdLoggers[]
   siteInfoDetails SiteInfoDetail[]
+  bmsLoggers  BmsLoggers[]
+  pmsCell     PmsCell[]
 }
 
 model SiteInfoDetail {
   id                Int          @id @default(autoincrement())
-  nojsId            String       @unique(map: "UNIQUE_NOJS_NOJSID") @db.VarChar(255)
+  nojsSite          String       @unique(map: "UNIQUE_NOJS_NOJSID") @db.VarChar(255)
   ipGatewayLC       String?      @db.VarChar(255)
   ipGatewayGS       String?      @db.VarChar(255)
   subnet            String?      @db.VarChar(255)
@@ -150,14 +149,14 @@ model SiteInfoDetail {
   longitude         Float?       
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
-  siteInformation   SiteInformation  @relation(fields: [nojsId], references: [nojs], onDelete: Cascade)
+  siteInformation   SiteInformation  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
 }
 
 model BmsLoggers {
   id                     BigInt          @id @default(autoincrement())
   ts                     String?         @db.VarChar(255)
   slaveId                Int?
-  nojsId                 Int
+  nojsSite               String
   pcbCode                String?         @db.VarChar(255)
   sn1Code                String?         @db.VarChar(255)
   packVoltage            Int?
@@ -189,6 +188,7 @@ model BmsLoggers {
   faultStatus            String[]        @db.VarChar
   errorMessages          String[]        @db.VarChar
   bmsCellVoltage         BmsCellVoltage? @relation(fields: [cellVoltageId], references: [id], onDelete: Cascade)
+  siteInformation        SiteInformation @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
 }
 
 model BmsCellVoltage {

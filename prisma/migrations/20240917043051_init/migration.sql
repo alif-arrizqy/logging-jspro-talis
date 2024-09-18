@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PmsCell" ALTER COLUMN "dock" SET DATA TYPE TEXT;
