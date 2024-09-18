@@ -1,86 +1,15 @@
-import prisma from "../app.js";
-import * as ResponseHelper from "../helpers/response.js";
-import {
-  taliSchemas,
-  talisCellSchemas,
-} from "../helpers/validation/talisValidation.js";
-import { fetchLoggerTalis, deleteLoggerTalis } from "./api.js";
+import prisma from "../../app.js";
+import { tsFormatter } from "../../helpers/timestampFormatter.js";
+import * as ResponseHelper from "../../helpers/responseHelper.js";
+import validateTalisLoggers from "../../helpers/validationSchema/talisValidation.js"
+import { fetchLoggerTalis, deleteLoggerTalis } from "../../helpers/fetchApiHelper.js";
 
-const dataToFormatDb = async (datas) => {
-  return datas.map((el) => {
-    const talis = {
-      ts: el.ts,
-      threadId: el.thread_id,
-      errorMessages: el.error_messages,
-      pcbCode: el.pcb_code,
-      sn1Code: el.sn1_code,
-      packVoltage: el.pack_voltage,
-      packCurrent: el.pack_current,
-      remainingCapacity: el.remaining_capacity,
-      averageCellTemperature: el.average_cell_temperature,
-      environmentTemperature: el.environment_temperature,
-      warningFlag: el.warning_flag,
-      protectionFlag: el.protection_flag,
-      faultStatus: el.fault_status_flag,
-      soc: el.soc,
-      soh: el.soh,
-      fullChargedCapacity: el.full_charged_capacity,
-      cycleCount: el.cycle_count,
-      maxCellVoltage: el.max_cell_voltage,
-      minCellVoltage: el.min_cell_voltage,
-      cellDifference: el.cell_difference,
-      maxCellTemperature: el.max_cell_temperature,
-      minCellTemperature: el.min_cell_temperature,
-      fetTemperature: el.fet_temperature,
-      cellTemperature1: el.cell_temperature[0],
-      cellTemperature2: el.cell_temperature[1],
-      cellTemperature3: el.cell_temperature[2],
-      ambientTemperature: el.ambient_temperature,
-      remainingChargeTime: el.remaining_charge_time,
-      remainingDischargeTime: el.remaining_discharge_time,
-    };
-
-    const talisCellPack = el.cell_voltage.reduce((acc, e, i) => {
-      acc[`cell${i + 1}`] = e;
-      return acc;
-    }, {});
-
-    return { talis, talisCellPack };
-  });
-};
-
-const validateTalisLoggers = async (datas) => {
-  try {
-    const parsedData = await dataToFormatDb(datas);
-    return parsedData.map((el) => {
-      const validLogger = taliSchemas().safeParse(el.talis);
-      const validCell = talisCellSchemas().safeParse(el.talisCellPack);
-      return {
-        status: validLogger.success && validCell.success ? "success" : "failed",
-        talisLogger: validLogger.data,
-        talisCell: validCell.data,
-        errors: {
-          loggerErrors: validLogger.error,
-          cellErrors: validCell.error,
-        },
-      };
-    });
-  } catch (error) {
-    console.error("Error validating talis loggers:", error);
-    return { status: "error" };
-  }
-};
-
-const createTalisLoggers = async (nojsId) => {
+const createTalisLoggers = async (nojsSite) => {
   try {
     const loggerData = await fetchLoggerTalis();
-    if (loggerData.code !== 200) {
-      return ResponseHelper.errorMessage("Failed to fetch logger data", 500);
-    }
-
-    if (loggerData.data.length === 0) {
-      console.log("Talis logger data is empty");
-      return;
+    if (loggerData === null) {
+      console.log("No response received from server");
+      return ResponseHelper.errorMessage("No response received from server", 404);
     }
 
     const validatedData = await validateTalisLoggers(loggerData.data);
@@ -89,8 +18,8 @@ const createTalisLoggers = async (nojsId) => {
       const failedData = validatedData.filter(
         (data) => data.status === "failed"
       );
-      console.log(failedData);
-      return;
+      console.log("failed validate data:", failedData);
+      return ResponseHelper.errorMessage("Failed to validate talis loggers", 500);
     }
 
     console.log("All data validated successfully");
@@ -102,40 +31,39 @@ const createTalisLoggers = async (nojsId) => {
           select: { id: true },
         });
 
-        const talisLogger = await prisma.bmsLogger.create({
+        const talisLogger = await prisma.bmsLoggers.create({
           data: {
             ...element.talisLogger,
-            nojsId,
+            ts: tsFormatter(element.talisLogger.ts),
+            nojsSite,
             cellVoltageId: bmsCellId.id,
           },
         });
 
         if (!talisLogger) {
-          throw new Error(
-            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Failed to create talis logger data`
+          console.log(
+            `nojsSite: ${nojsSite} - ts: ${element.talisLogger.ts} - Failed to create talis logger data`
           );
+          return ResponseHelper.errorMessage("Failed to create talis logger data", 500);
         }
 
-        console.log(
-          `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Talis logger data created successfully`
-        );
+        // return ResponseHelper.successMessage("Talis loggers created successfully", 200);
 
         const deletedLogger = await deleteLoggerTalis(element.talisLogger.ts);
         if (deletedLogger) {
           console.log(
-            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Logger data deleted successfully`
+            `nojsSite: ${nojsSite} - ts: ${element.talisLogger.ts} - Logger data deleted successfully`
           );
+          return ResponseHelper.successMessage("Talis loggers created and deleted successfully", 200);
         } else {
           console.log(
-            `nojsId: ${nojsId} - ts: ${element.talisLogger.ts} - Failed to delete logger data`
+            `nojsSite: ${nojsSite} - ts: ${element.talisLogger.ts} - Failed to delete logger data`
           );
+          return ResponseHelper.errorMessage("Talis loggers created but failed to delete logger data", 500);
         }
       } catch (error) {
         console.error("Error inserting talis logger data:", error);
-        return ResponseHelper.errorMessage(
-          "Failed to insert talis logger data",
-          500
-        );
+        return ResponseHelper.errorMessage("Failed to insert talis logger data",500);
       }
     }
   } catch (error) {

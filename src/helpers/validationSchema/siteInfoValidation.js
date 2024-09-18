@@ -1,4 +1,5 @@
 import z from "zod";
+import { siteInformationFormatter } from "../databaseFormatter.js";
 
 const contactPersonSchema = z.object({
   name: z.string().nullable(),
@@ -21,7 +22,7 @@ const siteInformationSchema = z.object({
 });
 
 const siteInfoDetailSchema = z.object({
-  nojsId: z.string().min(1, { message: "nojs cannot be empty" }),
+  nojsSite: z.string().min(1, { message: "nojs cannot be empty" }),
   ipGatewayLC: z.string().nullable(),
   ipGatewayGS: z.string().nullable(),
   subnet: z.string().nullable(),
@@ -42,4 +43,29 @@ const siteInfoDetailSchema = z.object({
   longitude: z.number().nullable(),
 });
 
-export { siteInformationSchema, siteInfoDetailSchema };
+const validateSiteInformation = async (data) => {
+  try {
+    const parsedData = await siteInformationFormatter(data);
+    const validSite = siteInformationSchema.safeParse(
+      parsedData.siteInformation
+    );
+    const validDetail = siteInfoDetailSchema.safeParse(
+      parsedData.siteInfoDetail
+    );
+
+    return {
+      status: validSite.success && validDetail.success ? "success" : "failed",
+      siteInformation: validSite.data,
+      siteInfoDetail: validDetail.data,
+      errors: {
+        siteInformation: validSite.error || null,
+        siteInfoDetail: validDetail.error || null,
+      },
+    };
+  } catch (error) {
+    console.error("Error validating site:", error);
+    return { status: "error", error };
+  }
+};
+
+export default validateSiteInformation;

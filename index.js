@@ -1,24 +1,25 @@
 import prisma from "./src/app.js";
 import cron from "node-cron";
-import { createTalisLoggers } from "./src/talis/index.js";
-import { createNojsLoggers } from "./src/battery/index.js";
+import { createPmsLoggers } from "../../src/controllers/pmsLoggers/index.js";
+import { createTalisLoggers } from "../../src/controllers/talisLoggers/index.js";
 
 console.log("Waiting for scheduled tasks 6 minutes...");
 
 // Schedule tasks to be run on the server every 6 minutes
 cron.schedule("*/6 * * * *", async () => {
   console.log("Running every 6 minutes");
-  const noJsId = 1;
+  const nojsSite = 'JS999';
 
   try {
     // Connect to the database
     await prisma.$connect();
 
     // Talis loggers
-    await createTalisLoggers(noJsId);
+    await createTalisLoggers(nojsSite);
 
-    // Nojs loggers
-    await createNojsLoggers(noJsId);
+    // PMS loggers
+    await createPmsLoggers(nojsSite);
+
   } catch (err) {
     console.error("Error during scheduled task:", err.message);
     console.error("Stack trace:", err.stack);
