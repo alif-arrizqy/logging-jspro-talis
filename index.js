@@ -8,11 +8,11 @@ console.log("Waiting for scheduled tasks 6 minutes...");
 // Schedule tasks to be run on the server every 6 minutes
 cron.schedule("*/6 * * * *", async () => {
   console.log("Running every 6 minutes");
-  const nojsSite = 'JS999';
-
   try {
     // Connect to the database
     await prisma.$connect();
+    
+    const nojsSite = 'JS999';
 
     // Talis loggers
     await createTalisLoggers(nojsSite);
