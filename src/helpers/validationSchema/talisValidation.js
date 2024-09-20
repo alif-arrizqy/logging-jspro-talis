@@ -4,6 +4,7 @@ import { talisLoggersFormatter } from "../../helpers/databaseFormatter.js";
 const taliSchemas = z.object({
   ts: z.string(),
   slaveId: z.number(),
+  port: z.string(),
   errorMessages: z.array(z.string()).optional(),
   pcbCode: z.string(),
   sn1Code: z.string().optional(),
@@ -54,7 +55,14 @@ const talisCellSchemas = z.object({
 
 const validateTalisLoggers = async (datas) => {
   try {
-    const parsedData = await talisLoggersFormatter(datas);
+    // merge usb0 and usb1 data
+    const USB0 = datas.usb0;
+    const USB1 = datas.usb1;
+
+    // merge usb0 and usb1 data
+    const mergedData = USB0.concat(USB1);
+
+    const parsedData = await talisLoggersFormatter(mergedData);
     return parsedData.map((el) => {
       const validLogger = taliSchemas.safeParse(el.talis);
       const validCell = talisCellSchemas.safeParse(el.talisCellPack);

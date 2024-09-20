@@ -124,6 +124,7 @@ const talisLoggersFormatter = async (datas) => {
     const talis = {
       ts: el.ts,
       slaveId: el.slave_id,
+      port: el.port,
       errorMessages: el.error_messages,
       pcbCode: el.pcb_code,
       sn1Code: el.sn1_code,
