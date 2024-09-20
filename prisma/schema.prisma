@@ -156,6 +156,7 @@ model BmsLoggers {
   id                     BigInt          @id @default(autoincrement())
   ts                     String?         @db.VarChar(255)
   slaveId                Int?
+  port                   String?         @db.VarChar(255)
   nojsSite               String
   pcbCode                String?         @db.VarChar(255)
   sn1Code                String?         @db.VarChar(255)
