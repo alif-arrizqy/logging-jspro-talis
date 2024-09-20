@@ -1,5 +1,5 @@
 import prisma from "../../src/app.js";
-import { createNojsLoggers } from "../../src/battery/index.js";
+import { createTalisLoggers } from "../../src/controllers/talisLoggers/index.js";
 
 const main = async () => {
   try {
@@ -7,8 +7,9 @@ const main = async () => {
     console.log("Database connection established.");
 
     // Add nojsLoggers
-    const nojsId = 1;
-    await createNojsLoggers(nojsId);
+    const nojsSite = "JS999";
+    const resp = await createTalisLoggers(nojsSite);
+    console.log(resp);
   } catch (err) {
     console.error("Error:", err);
   } finally {
