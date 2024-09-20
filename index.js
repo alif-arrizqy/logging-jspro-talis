@@ -1,7 +1,7 @@
 import prisma from "./src/app.js";
 import cron from "node-cron";
-import { createPmsLoggers } from "../loggers/src/controllers/pmsLoggers/index.js"
-import { createTalisLoggers } from "../loggers/src/controllers/talisLoggers/index.js"
+import { createPmsLoggers } from "./src/controllers/pmsLoggers/index.js";
+import { createTalisLoggers } from "./src/controllers/talisLoggers/index.js"
 
 console.log("Waiting for scheduled tasks 6 minutes...");
 
