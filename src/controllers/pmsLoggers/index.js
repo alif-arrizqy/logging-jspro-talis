@@ -4,9 +4,9 @@ import validatePmsLoggers from "../../helpers/validationSchema/pmsValidation.js"
 import { fetchLogger, deleteLogger } from "../../helpers/fetchApiHelper.js";
 import { tsFormatter } from "../../helpers/timestampFormatter.js";
 
-const createPmsLoggers = async (nojsSite) => {
+const createPmsLoggers = async (nojsSite, ip) => {
   try {
-    const loggerData = await fetchLogger();
+    const loggerData = await fetchLogger(ip);
 
     if (loggerData === null) {
       console.log("No response received from server");
@@ -88,7 +88,7 @@ const createPmsLoggers = async (nojsSite) => {
       const deleteLoggerResults = await Promise.all(
         validData.data.pmsLoggers.map(async (val) => {
           try {
-            const deleteLoggerData = await deleteLogger(val.ts);
+            const deleteLoggerData = await deleteLogger(ip, val.ts);
             if (deleteLoggerData === null) {
               console.log(`No response received from server for ts: ${val.ts}`);
               return ResponseHelper.errorMessage("No response received from server", 404);

@@ -32,14 +32,14 @@ const createBmsLogger = async (talisLogger, nojsSite, cellVoltageId) => {
   }
 };
 
-const handleDeleteLogger = async (tsArray) => {
+const handleDeleteLogger = async (ip, tsArray) => {
   const deleteResults = [];
 
   try {
     await Promise.all(
       tsArray.map(async (ts) => {
         try {
-          const deleteResponse = await deleteLoggerTalis(ts);
+          const deleteResponse = await deleteLoggerTalis(ip, ts);
 
           if (deleteResponse === null) {
             console.log(`No response received from server for ts: ${ts}`);
@@ -61,9 +61,9 @@ const handleDeleteLogger = async (tsArray) => {
   return deleteResults;
 };
 
-const createTalisLoggers = async (nojsSite) => {
+const createTalisLoggers = async (nojsSite, ip) => {
   try {
-    const loggerData = await fetchLoggerTalis();
+    const loggerData = await fetchLoggerTalis(ip);
 
     if (loggerData === null) {
       console.log("No response received from server");
@@ -106,7 +106,7 @@ const createTalisLoggers = async (nojsSite) => {
     );
 
     // Handle deletion of loggers
-    const deleteResults = await handleDeleteLogger(tsArray);
+    const deleteResults = await handleDeleteLogger(ip, tsArray);
 
     if (deleteResults.length > 0) {
       return ResponseHelper.successMessage("Talis loggers created and delete successfully", 201);
