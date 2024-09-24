@@ -1,11 +1,10 @@
 import axios from "axios";
 
 // GET api/logger
-// GET api/logger
-const fetchLogger = async () => {
+const fetchLogger = async (apiUrl) => {
   try {
-    const apiUrl = process.env.API_URL;
-    const response = await axios.get(`${apiUrl}/api/logger`, {
+    // const apiUrl = process.env.API_URL;
+    const response = await axios.get(`http://${apiUrl}/api/logger`, {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
@@ -33,10 +32,10 @@ const fetchLogger = async () => {
 };
 
 // DELETE api/logger/timestamp
-const deleteLogger = async (timestamp) => {
+const deleteLogger = async (apiUrl, timestamp) => {
   try {
-    const apiUrl = process.env.API_URL;
-    const response = await axios.delete(`${apiUrl}/api/logger/${timestamp}`, {
+    // const apiUrl = process.env.API_URL;
+    const response = await axios.delete(`http://${apiUrl}/api/logger/${timestamp}`, {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
@@ -61,10 +60,10 @@ const deleteLogger = async (timestamp) => {
 };
 
 // GET api/logger/talis
-const fetchLoggerTalis = async () => {
+const fetchLoggerTalis = async (apiUrl) => {
   try {
-    const apiUrl = process.env.API_URL;
-    const response = await axios.get(`${apiUrl}/api/logger/talis`, {
+    // const apiUrl = process.env.API_URL;
+    const response = await axios.get(`http://${apiUrl}/api/logger/talis`, {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
@@ -89,10 +88,10 @@ const fetchLoggerTalis = async () => {
 };
 
 // DELETE api/logger/talis/timestamp
-const deleteLoggerTalis = async (timestamp) => {
+const deleteLoggerTalis = async (apiUrl, timestamp) => {
   try {
-    const apiUrl = process.env.API_URL;
-    const response = await axios.delete(`${apiUrl}/api/logger/talis/${timestamp}`, {
+    // const apiUrl = process.env.API_URL;
+    const response = await axios.delete(`http://${apiUrl}/api/logger/talis/${timestamp}`, {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
