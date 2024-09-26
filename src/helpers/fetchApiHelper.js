@@ -8,6 +8,7 @@ const fetchLogger = async (apiUrl) => {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
+      timeout: 10000,
     });
 
     if (response.data.code === 200) {
@@ -39,6 +40,7 @@ const deleteLogger = async (apiUrl, timestamp) => {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
+      timeout: 10000,
     });
 
     if (response.status === 200) {
@@ -67,6 +69,7 @@ const fetchLoggerTalis = async (apiUrl) => {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
+      timeout: 10000,
     });
 
     if (response.data.code === 200) {
@@ -95,6 +98,7 @@ const deleteLoggerTalis = async (apiUrl, timestamp) => {
       headers: {
         Authorization: `Bearer ${process.env.API_KEY}`,
       },
+      timeout: 10000,
     });
 
     if (response.status === 200) {
