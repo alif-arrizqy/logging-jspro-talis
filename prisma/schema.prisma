@@ -42,6 +42,8 @@ model TvdLoggers {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   siteInformation   SiteInformation  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
+
+  @@index([nojsSite], map: "nojsid_tvd", type: Hash)
 }
 
 model PmsCell { 
@@ -75,6 +77,9 @@ model PmsCell {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   siteInformation   SiteInformation  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
+  
+  @@index([nojsSite], map: "nojsid_pmsCell", type: Hash)
+  @@index([ts], map: "ts_pmsCell", type: Hash)
 }
 
 model PmsLoggers {
@@ -99,8 +104,8 @@ model PmsLoggers {
   siteInformation   SiteInformation?  @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
   pv         Pv?       @relation(fields: [pvId], references: [id], onDelete: Cascade)
 
-  @@index([nojsSite], map: "nojsid_hash", type: Hash)
-  @@index([ts], map: "ts_loggers_idx")
+  @@index([nojsSite], map: "nojsid_pmsLoggers", type: Hash)
+  @@index([ts], map: "ts_pmsLoggers", type: Hash)
 }
 
 model SiteInformation {
@@ -190,6 +195,9 @@ model BmsLoggers {
   errorMessages          String[]        @db.VarChar
   bmsCellVoltage         BmsCellVoltage? @relation(fields: [cellVoltageId], references: [id], onDelete: Cascade)
   siteInformation        SiteInformation @relation(fields: [nojsSite], references: [nojs], onDelete: Cascade)
+
+  @@index([nojsSite], map: "nojsid_bmsLoggers", type: Hash)
+  @@index([ts], map: "ts_bmsLoggers", type: Hash)
 }
 
 model BmsCellVoltage {
